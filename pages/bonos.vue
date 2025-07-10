@@ -160,72 +160,33 @@
         </div>
 
         <!-- Modal -->
-        <Teleport to="body">
-          <div
-            v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex"
-            style="top:0;left:0;right:0;bottom:0;"
-          >
-            <!-- Backdrop (click to close) -->
+        <Teleport to="body" v-if="isModalOpen">
             <div
-              class="absolute inset-0 bg-black bg-opacity-50"
-              @click="closeModal"
-              style="top:0;left:0;right:0;bottom:0;"
-            ></div>
-            <!-- Modal Content -->
-            <div
-              class="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto my-8 p-6 overflow-y-auto"
-              style="min-height:calc(100vh - 4rem); z-index:1;"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+                @click.self="isModalOpen = false"
             >
-              <!-- Close Button -->
-              <button
-                @click="closeModal"
-                aria-label="Cerrar"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-white bg-opacity-80 rounded-full p-2 shadow focus:outline-none focus:ring-2 focus:ring-primary-500 z-10"
-              >
-                <XMarkIcon class="w-6 h-6" />
-              </button>
-              <template v-if="modalComponent">
-                <template v-if="modalTitle === 'Audio de Activación Adicional Enfoque Láser Para Modo Ejecución'">
-                  <div class="text-center text-gray-600 mt-4">Este recurso estará disponible muy pronto.</div>
-                </template>
-                <template v-else-if="userData || isDevMode">
-                  <component :is="modalComponent" :user="userData || { name: '', mainActivity: '' }" />
-                </template>
-                <template v-else>
-                  <div class="flex flex-col items-center justify-center space-y-6 py-8">
-                    <p class="text-lg text-gray-700 text-center">Para acceder a tu guía personalizada, primero completa el diagnóstico.</p>
-                    <NuxtLink to="/diagnostico" class="btn-primary text-lg px-8 py-4">Completar Diagnóstico</NuxtLink>
-                    <button @click="closeModal" class="btn-secondary w-full">Cerrar</button>
-                  </div>
-                </template>
-              </template>
-              <template v-else>
-                <div class="text-center space-y-4">
-                  <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                    <ClockIcon class="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 class="text-xl font-bold text-gray-900">{{ modalTitle }}</h3>
-                  <p class="text-gray-600">
-                    Este recurso estará disponible pronto.
-                  </p>
-                  <button
-                    @click="closeModal"
-                    class="btn-primary w-full"
-                  >
-                    Cerrar
-                  </button>
+                <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+                    <!-- X Button -->
+                    <button
+                        @click="isModalOpen = false"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        aria-label="Cerrar"
+                    >
+                        <XMarkIcon class="w-6 h-6" />
+                    </button>
+                    <div>
+                        <component :is="modalComponent" :user="userStore.user || { name: '', mainActivity: '' }" />
+                    </div>
                 </div>
-              </template>
             </div>
-          </div>
         </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { 
+import { ref, watch } from 'vue'
+import { useUserStore } from '~/stores/user'
+import {
     LightBulbIcon,
     SpeakerWaveIcon,
     KeyIcon,
@@ -256,25 +217,18 @@ definePageMeta({
     middleware: ['auth']
 })
 
-// Modal state
+const userStore = useUserStore()
 const isModalOpen = ref(false)
 const modalTitle = ref('')
 const modalComponent = ref<any | null>(null)
 
-const isDevMode = computed(() => {
-    if (typeof window === 'undefined') return false
-    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-})
-
-const userData = computed(() => {
-    if (typeof window === 'undefined') return null
-    try {
-        const data = localStorage.getItem('diagnosticUser')
-        if (!data) return null
-        return JSON.parse(data)
-    } catch {
-        return null
-    }
+// Restore body scroll when modal closes
+watch(isModalOpen, (open) => {
+  if (open) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
 })
 
 // Modal functions

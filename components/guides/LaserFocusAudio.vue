@@ -36,34 +36,49 @@
       </ul>
     </div>
 
-    <!-- Audio Player -->
+    <!-- Audio Player (Coming Soon) -->
     <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center gap-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">Audio de Enfoque Láser</h2>
-      <audio
-        controls
-        :src="audioSrc"
-        class="w-full max-w-md"
+      <h2 class="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+        <svg class="w-6 h-6 text-yellow-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+        ¡Audio disponible muy pronto!
+      </h2>
+      <p class="text-gray-700 text-center max-w-md">
+        Estamos terminando de masterizar el audio de enfoque láser para que tengas la mejor experiencia posible.<br>
+        <span class="font-semibold text-blue-700">¿Quieres ser el primero en escucharlo?</span>
+      </p>
+      <input
+        v-model="email"
+        type="email"
+        placeholder="Tu correo para avisarte..."
+        class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 w-full max-w-xs"
+      />
+      <button
+        @click="notifyMe"
+        class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors"
       >
-        Tu navegador no soporta el elemento de audio.
-      </audio>
-      <a
-        :href="audioSrc"
-        download
-        class="mt-2 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow hover:bg-blue-700 transition-colors"
-      >
-        Descargar Audio
-      </a>
+        ¡Avísame cuando esté listo!
+      </button>
+      <div v-if="notified" class="text-green-600 mt-2">¡Te avisaremos en cuanto esté disponible! 🚀</div>
+      <div class="text-xs text-gray-400 mt-2">(No hacemos spam. Solo una notificación para el lanzamiento.)</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 const props = defineProps<{ user?: { name?: string, mainActivity?: string } }>()
 const isDevMode = computed(() => {
   if (typeof window === 'undefined') return false
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 })
 const user = props.user
-const audioSrc = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+const email = ref('')
+const notified = ref(false)
+function notifyMe() {
+  if (email.value && email.value.includes('@')) {
+    notified.value = true
+    setTimeout(() => { notified.value = false }, 3000)
+    email.value = ''
+  }
+}
 </script> 
