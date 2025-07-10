@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "python3", "gcc"]
+nixPkgs = ["nodejs_18", "pnpm", "python3", "gcc"]
