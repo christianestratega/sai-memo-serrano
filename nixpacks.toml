@@ -1,5 +1,12 @@
 [phases.setup]
+nixPkgs = ["nodejs_20", "python3", "gcc", "g++", "buildPackages.stdenv"]
 aptPkgs = ["build-essential", "python3", "gcc", "g++"]
 
 [phases.install]
 cmds = ["pnpm install --frozen-lockfile --no-optional"]
+
+[phases.build]
+cmds = ["pnpm build"]
+
+[start]
+cmd = "pnpm preview"
