@@ -1,8 +1,8 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
-
 export default defineEventHandler(async (event) => {
+  // @ts-expect-error
+  const { PrismaClient } = await import('@prisma/client')
+  const prisma = new PrismaClient()
+
     try {
         const body = await readBody(event)
         const { userId, answers, resultKey } = body
