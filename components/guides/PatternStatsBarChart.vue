@@ -58,7 +58,9 @@ const chartOptions = {
       beginAtZero: true,
       max: 100,
       ticks: {
-        callback: (v: number) => `${v} %`,
+        callback: function(tickValue: string | number) {
+          return `${tickValue} %`
+        },
         color: '#64748b',
         font: { size: 14 },
       },

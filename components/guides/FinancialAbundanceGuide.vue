@@ -357,8 +357,8 @@ const chartOptions = {
       beginAtZero: true,
       max: 100,
       ticks: {
-        callback: function(value: number) {
-          return value + '%'
+        callback: function(tickValue: string | number, index: number, ticks: any) {
+          return typeof tickValue === 'number' ? tickValue + '%' : tickValue;
         }
       }
     }
@@ -397,8 +397,8 @@ const actionChartOptions = {
     y: {
       beginAtZero: true,
       ticks: {
-        callback: function(value: number) {
-          return value + 'x'
+        callback: function(tickValue: string | number, index: number, ticks: any) {
+          return typeof tickValue === 'number' ? tickValue + 'x' : tickValue;
         }
       }
     }

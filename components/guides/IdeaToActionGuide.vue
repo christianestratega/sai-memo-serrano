@@ -284,7 +284,7 @@ const consistencyChartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'bottom',
+      position: 'bottom' as const,
       labels: {
         padding: 20,
         usePointStyle: true
@@ -326,8 +326,9 @@ const calendarChartOptions = {
       beginAtZero: true,
       max: 100,
       ticks: {
-        callback: function(value: number) {
-          return value + '%'
+        callback: function(tickValue: string | number, index: number, ticks: any) {
+          // Chart.js v4 expects (tickValue, index, ticks)
+          return typeof tickValue === 'number' ? tickValue + '%' : tickValue;
         }
       }
     }
