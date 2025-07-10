@@ -64,11 +64,12 @@
                             Teléfono celular <span class="text-red-500">*</span>
                         </label>
                         <input
-                            v-model="form.phone"
-                            type="tel"
-                            placeholder="Ej: +52 55 1234 5678"
-                            class="w-full py-4 px-5 rounded-xl shadow-sm border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 placeholder-gray-400 text-base bg-white hover:border-gray-400"
-                            required
+                          v-model="form.phone"
+                          type="tel"
+                          name="telefono"
+                          placeholder="Ingresa tu número celular"
+                          class="w-full rounded-2xl p-3 text-base border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 placeholder-gray-400 text-base bg-white hover:border-gray-400"
+                          required
                         />
                     </div>
                 </div>
@@ -590,10 +591,21 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '~/stores/user'
+import { useCountryDetection } from '~/composables/useCountryDetection'
 import { UserIcon, CalendarIcon, UsersIcon, ShieldCheckIcon, LightBulbIcon, HeartIcon, BoltIcon, ClockIcon, ArrowPathIcon, ExclamationTriangleIcon, SparklesIcon, Cog6ToothIcon, KeyIcon, TrophyIcon, ExclamationCircleIcon, ChevronDownIcon, CheckCircleIcon, XCircleIcon, EyeIcon, LinkIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/vue/24/outline'
 
-// Use available icons for option cards
-import { FireIcon, ListBulletIcon, FaceFrownIcon, SunIcon, AdjustmentsHorizontalIcon, BriefcaseIcon, GlobeAltIcon } from '@heroicons/vue/24/solid'
+  // Use available icons for option cards
+  import { FireIcon, ListBulletIcon, FaceFrownIcon, SunIcon, AdjustmentsHorizontalIcon, BriefcaseIcon, GlobeAltIcon } from '@heroicons/vue/24/solid'
+
+type PhoneObject = {
+  number: string
+  isValid: boolean
+  country: string
+  countryCallingCode: string
+  nationalNumber: string
+  internationalNumber: string
+  e164: string
+}
 
 const currentStep = ref(1)
 const totalSteps = 16
@@ -603,7 +615,7 @@ const form = ref({
     // Step 1: Personal Information
     fullName: '',
     email: '',
-    phone: '',
+    phone: '' as string | null,
     // Step 2-5: Contexto personal
     occupation: '',
     age: '',
@@ -627,13 +639,15 @@ const form = ref({
 })
 
 // Validation for Step 1
+// Remove vue-tel-input props, debug output, and related logic
+// Update isStep1Valid to only check for non-empty phone
 const isStep1Valid = computed(() => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/
-    
-    return form.value.fullName.trim() !== '' && 
-           emailRegex.test(form.value.email) && 
-           phoneRegex.test(form.value.phone)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return (
+    form.value.fullName.trim() !== '' &&
+    emailRegex.test(form.value.email) &&
+    form.value.phone && form.value.phone.trim() !== ''
+  )
 })
 
 // Option card data for select questions (use only available icons)
@@ -719,7 +733,8 @@ const progressPercent = computed(() => ((currentStep.value - 1) / (totalSteps - 
 
 // Function to select an option and auto-advance
 function selectOption(field: keyof typeof form.value, value: string) {
-    form.value[field] = value
+    if (field === 'phone') return; // Prevent assignment to phone, which expects a PhoneObject
+    form.value[field] = value as any;
     // Auto-advance to next step after a short delay for visual feedback
     setTimeout(() => {
         nextStep()
@@ -745,33 +760,60 @@ const emit = defineEmits<{
 
 const userStore = useUserStore()
 
-// Autofill email from session/global state on mount
-onMounted(() => {
+const { detectedCountry } = useCountryDetection()
+
+const preferredCountries = ['mx', 'us', 'es', 'ar', 'co', 'pe', 'cl', 'br']
+
+const validDefaultCountry = computed(() => {
+  return preferredCountries.includes(detectedCountry.value) ? detectedCountry.value : 'us'
+})
+
+const isDev = import.meta.env.DEV
+
+// Autofill email and name from session/global state on mount
+onMounted(async () => {
     // Prefer Pinia store, fallback to localStorage
     const sessionEmail = userStore.userEmail || localStorage.getItem('userEmail') || ''
     if (sessionEmail && !form.value.email) {
         form.value.email = sessionEmail
     }
+    
+    // Prefill name if available
+    if (userStore.user?.name && !form.value.fullName) {
+        form.value.fullName = userStore.user.name
+    }
+
+
 })
 
 // Watch for changes to the email field and sync to session/global state
 watch(() => form.value.email, (newEmail) => {
     if (newEmail && newEmail !== userStore.userEmail) {
-        userStore.login(newEmail) // This will update Pinia and localStorage
+        userStore.login(newEmail, form.value.fullName) // This will update Pinia and localStorage
+    }
+})
+
+// Watch for changes to the name field and sync to session/global state
+watch(() => form.value.fullName, (newName) => {
+    if (newName && form.value.email && newName !== userStore.user?.name) {
+        userStore.login(form.value.email, newName) // This will update Pinia and localStorage
     }
 })
 
 function submitForm() {
-    // Ensure session/global state is up to date
+    // Ensure session/global state is up to date with name
     if (form.value.email && form.value.email !== userStore.userEmail) {
-        userStore.login(form.value.email)
+        userStore.login(form.value.email, form.value.fullName)
+    } else if (form.value.fullName && form.value.fullName !== userStore.user?.name) {
+        // Update user name if it changed
+        userStore.login(form.value.email, form.value.fullName)
     }
     // Calculate result key based on form answers
     const resultKey = calculateResultKey()
     
     // Emit the diagnosis completion event
     emit('diagnosis-completed', {
-        answers: { ...form.value },
+        answers: { ...form.value }, // vue-tel-input already includes country code
         resultKey
     })
     

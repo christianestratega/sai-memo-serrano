@@ -287,13 +287,14 @@
       <p class="text-xl mb-6 opacity-90">
         Agenda tu <strong>Llamada de Desbloqueo 1-1 con el equipo de Memo</strong> y recibe estrategias personalizadas para activar tu abundancia hoy.
       </p>
-      <a 
-          href="#" 
-          @click.prevent="openBookingPopup" 
-          class="btn-primary bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 inline-flex items-center gap-2"
-      >
-          Agendar Llamada 1-1
-      </a>
+      <iframe
+        src="https://api.leadconnectorhq.com/widget/bookings/llamada-de-aceleracion"
+        width="100%"
+        height="600"
+        frameborder="0"
+        allowfullscreen
+        class="rounded-b-lg mt-6"
+      ></iframe>
     </div>
   </div>
 </template>
@@ -310,7 +311,6 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
-import { useBookingModal } from '~/composables/useBookingModal'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -425,6 +425,4 @@ onMounted(() => {
   beliefs.value.new = loadFromLocalStorage('financial_new_belief')
   reflection.value = loadFromLocalStorage('financial_reflection')
 })
-
-const { open: openBookingPopup } = useBookingModal()
 </script> 

@@ -146,13 +146,14 @@
                         <p class="text-gray-600 leading-relaxed">
                             Agenda la Llamada de Desbloqueo 1-1 con el equipo de Memo y recibe ayuda personalizada para implementar tu plan en tu vida diaria.
                         </p>
-                        <a 
-                            href="#" 
-                            @click.prevent="openBookingPopup" 
-                            class="btn-primary bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 inline-flex items-center gap-2"
-                        >
-                            Agendar Llamada 1-1
-                        </a>
+                        <iframe
+                          src="https://api.leadconnectorhq.com/widget/bookings/llamada-de-aceleracion"
+                          width="100%"
+                          height="600"
+                          frameborder="0"
+                          allowfullscreen
+                          class="rounded-b-lg mt-6"
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -185,10 +186,10 @@
                 <XMarkIcon class="w-6 h-6" />
               </button>
               <template v-if="modalComponent">
-                <template v-if="userData || isDevMode">
-                  <div v-if="!userData && isDevMode" class="mb-4 p-3 rounded bg-yellow-100 text-yellow-800 text-center font-semibold">
-                    DEV MODE: Mostrando la guía sin diagnóstico completado
-                  </div>
+                <template v-if="modalTitle === 'Audio de Activación Adicional Enfoque Láser Para Modo Ejecución'">
+                  <div class="text-center text-gray-600 mt-4">Este recurso estará disponible muy pronto.</div>
+                </template>
+                <template v-else-if="userData || isDevMode">
                   <component :is="modalComponent" :user="userData || { name: '', mainActivity: '' }" />
                 </template>
                 <template v-else>
@@ -242,7 +243,6 @@ import LaserFocusAudio from '~/components/guides/LaserFocusAudio.vue'
 import UnlockExecutionGuide from '~/components/guides/UnlockExecutionGuide.vue'
 import IdeaToActionGuide from '~/components/guides/IdeaToActionGuide.vue'
 import FinancialAbundanceGuide from '~/components/guides/FinancialAbundanceGuide.vue'
-import { useBookingModal } from '~/composables/useBookingModal'
 
 // Set page metadata
 useHead({
@@ -250,6 +250,10 @@ useHead({
     meta: [
         { name: 'description', content: 'Accede a bonos exclusivos y recursos premium para maximizar tu potencial de alto rendimiento' }
     ]
+})
+
+definePageMeta({
+    middleware: ['auth']
 })
 
 // Modal state
@@ -312,6 +316,4 @@ function closeModal() {
         document.body.style.overflow = ''
     }
 }
-
-const { open: openBookingPopup } = useBookingModal()
 </script> 

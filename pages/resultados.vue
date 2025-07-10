@@ -1,6 +1,5 @@
 <template>
     <div class="min-h-screen bg-gray-50">
-        <!-- Removed warning banner -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             <!-- Loading State -->
             <div v-if="userStore.isLoading" class="text-center py-12">
@@ -19,41 +18,18 @@
                     <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
                         <ExclamationTriangleIcon class="w-8 h-8 text-amber-600" />
                     </div>
-                    <h2 class="text-2xl font-bold text-amber-800">No tienes un diagnóstico</h2>
-                    <p class="text-amber-700">
-                        Necesitas completar el diagnóstico para ver tus resultados personalizados.
-                    </p>
+                    <h2 class="text-2xl font-bold text-amber-800">Primero necesitas completar tu diagnóstico para ver tus resultados personalizados.</h2>
                     <NuxtLink 
                         to="/diagnostico" 
-                        class="btn-primary bg-amber-600 hover:bg-amber-700 border-amber-600 hover:border-amber-700 inline-flex items-center gap-2"
+                        class="btn-primary bg-amber-600 hover:bg-amber-700 border-amber-600 hover:border-amber-700 inline-flex items-center gap-2 mt-4"
                     >
                         Ir al Diagnóstico
                     </NuxtLink>
                 </div>
             </div>
 
-            <!-- Demo Profile Selection (only show if no real diagnosis) -->
-            <div v-else-if="showDemoSelector" class="bg-white rounded-xl p-6 shadow-sm border">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Seleccionar Perfil de Ejemplo</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <button 
-                        v-for="profile in resultProfiles" 
-                        :key="profile.key"
-                        @click="selectedProfile = profile.key"
-                        :class="[
-                            'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                            selectedProfile === profile.key 
-                                ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]"
-                    >
-                        {{ profile.title }}
-                    </button>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div v-if="currentProfile" class="space-y-8">
+            <!-- Real Results -->
+            <div v-else-if="currentProfile" class="space-y-8">
                 <!-- Header -->
                 <div class="text-center space-y-4">
                     <h1 class="text-4xl md:text-5xl font-bold text-gray-900">
@@ -65,14 +41,13 @@
                 </div>
 
                 <!-- Symptoms -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.symptoms">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                             <ExclamationTriangleIcon class="w-6 h-6 text-red-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Síntomas</h2>
                     </div>
-                    
                     <div class="space-y-3">
                         <ul class="space-y-3">
                             <li v-for="symptom in currentProfile.symptoms" :key="symptom" 
@@ -85,14 +60,13 @@
                 </div>
 
                 <!-- Action Plan -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.actionPlan">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                             <CheckCircleIcon class="w-6 h-6 text-blue-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Plan de Acción</h2>
                     </div>
-                    
                     <div class="space-y-3">
                         <ul class="space-y-3">
                             <li v-for="action in currentProfile.actionPlan" :key="action" 
@@ -105,14 +79,13 @@
                 </div>
 
                 <!-- Daily Action Plan -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.morningRoutine && currentProfile.nightRoutine">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                             <ClockIcon class="w-6 h-6 text-blue-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Plan de Acción Diario</h2>
                     </div>
-                    
                     <div class="grid md:grid-cols-2 gap-8">
                         <!-- Morning Routine -->
                         <div class="space-y-4">
@@ -128,7 +101,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <!-- Evening Routine -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -147,14 +119,13 @@
                 </div>
 
                 <!-- Recommended Books -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.books">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                             <BookOpenIcon class="w-6 h-6 text-orange-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Libros y Recursos Recomendados</h2>
                     </div>
-                    
                     <div class="grid md:grid-cols-3 gap-6">
                         <div v-for="book in currentProfile.books" :key="book"
                              class="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
@@ -166,40 +137,38 @@
                 </div>
 
                 <!-- Famous Entrepreneurs -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.famousExamples">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <TrophyIcon class="w-6 h-6 text-yellow-600" />
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <TrophyIcon class="w-6 h-6 text-yellow-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Emprendedores que Superaron este Patrón</h2>
                     </div>
-                    
                     <div class="grid md:grid-cols-2 gap-6">
                         <div v-for="entrepreneur in currentProfile.famousExamples" :key="entrepreneur"
                              class="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                                    <UserIcon class="w-8 h-8 text-yellow-600" />
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-900 mb-2">{{ entrepreneur }}</h3>
-                                    <p class="text-sm text-gray-600 mb-3"></p>
-                                    <div class="text-sm text-yellow-700 font-medium italic">
-                                        ""
-                                    </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <UserIcon class="w-8 h-8 text-yellow-600" />
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">{{ entrepreneur }}</h3>
+                                <p class="text-sm text-gray-600 mb-3"></p>
+                                <div class="text-sm text-yellow-700 font-medium italic">
+                                    ""
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                </div>
 
                 <!-- Personalized Affirmation -->
-                <div class="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-8">
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-8" v-if="currentProfile.affirmation">
                     <div class="text-center space-y-6">
                         <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
                             <SparklesIcon class="w-8 h-8 text-blue-600" />
                         </div>
-                        
                         <div class="space-y-4">
                             <h2 class="text-2xl font-bold text-gray-900">Tu Afirmación Personalizada</h2>
                             <div class="bg-white rounded-xl p-8 border border-blue-100 shadow-sm">
@@ -215,14 +184,13 @@
                 </div>
 
                 <!-- Micro Actions -->
-                <div class="bg-white rounded-xl p-8 shadow-sm border">
+                <div class="bg-white rounded-xl p-8 shadow-sm border" v-if="currentProfile.microActions">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                             <CheckCircleIcon class="w-6 h-6 text-green-600" />
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">Microacciones Recomendadas</h2>
                     </div>
-                    
                     <div class="space-y-3">
                         <ul class="space-y-3">
                             <li v-for="action in currentProfile.microActions" :key="action" 
@@ -240,7 +208,6 @@
                         <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
                             <PhoneIcon class="w-10 h-10 text-blue-600" />
                         </div>
-                        
                         <div class="space-y-3">
                             <h2 class="text-2xl font-bold text-gray-900">¿Quieres acelerar tu transformación?</h2>
                             <p class="text-gray-600 max-w-2xl mx-auto text-lg">
@@ -248,15 +215,14 @@
                                 para implementar tu plan en tu vida diaria.
                             </p>
                         </div>
-                        
-                        <a 
-                            href="#" 
-                            @click.prevent="openBookingPopup" 
-                            class="btn-primary bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 inline-flex items-center gap-2 text-lg px-8 py-4"
-                        >
-                            <CalendarIcon class="w-6 h-6" />
-                            Agendar Llamada 1-1
-                        </a>
+                        <iframe
+                          src="https://api.leadconnectorhq.com/widget/bookings/llamada-de-aceleracion"
+                          width="100%"
+                          height="600"
+                          frameborder="0"
+                          allowfullscreen
+                          class="rounded-b-lg mt-6"
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -265,6 +231,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { 
     ExclamationTriangleIcon, 
     UserIcon, 
@@ -289,7 +256,6 @@ useHead({
     ]
 })
 
-// @ts-expect-error Nuxt macro
 definePageMeta({
   middleware: ['auth']
 })
@@ -297,6 +263,11 @@ definePageMeta({
 // Get query parameter for profile selection (for demo mode)
 const route = useRoute()
 const userStore = useUserStore()
+
+// Always fetch latest diagnosis on mount
+onMounted(async () => {
+    await userStore.checkAuth()
+})
 
 // Show demo selector only if no real diagnosis and query param is present
 const showDemoSelector = computed(() => {
@@ -578,7 +549,11 @@ const resultProfiles = [
 
 // Get current profile based on selection
 const currentProfile = computed(() => {
-    return resultProfiles.find(profile => profile.key === selectedProfile.value)
+    const resultKey = userStore.diagnosis?.resultKey
+    if (userStore.hasDiagnosis && resultKey) {
+        return resultProfiles.find(p => p.key === resultKey)
+    }
+    return null
 })
 
 // Watch for route changes to update selected profile (only for demo mode)

@@ -14,5 +14,13 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         databaseUrl: process.env.DATABASE_URL
+    },
+    nitro: {
+        // Remove devProxy as it creates a proxy loop
+        // The API endpoints are served directly by Nuxt
+    },
+    devServer: {
+        host: '0.0.0.0',
+        port: 3000
     }
 })

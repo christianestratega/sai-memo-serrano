@@ -1,19 +1,24 @@
-export default defineNuxtRouteMiddleware(async (to) => {
-    // Skip auth check for login page
-    if (to.path === '/login') {
-        return
-    }
+export default defineNuxtRouteMiddleware((to) => {
+  // Permitir siempre el acceso a la página de inicio
+  if (to.path === '/') return
 
-    // Check if we're on client side
-    if (process.client) {
-        const userStore = useUserStore()
-        
-        // Try to check auth if not already authenticated
-        if (!userStore.isAuthenticated) {
-            const isAuth = await userStore.checkAuth()
-            if (!isAuth) {
-                return navigateTo('/login')
-            }
-        }
+  // Acceso a Pinia store (en el lado del cliente)
+  const userStore = useUserStore()
+  const isClient = typeof window !== 'undefined'
+
+  // Verificar sesión activa: en Pinia o en localStorage
+  let isAuthenticated = false
+  if (userStore.isAuthenticated) {
+    isAuthenticated = true
+  } else if (isClient) {
+    const email = localStorage.getItem('userEmail')
+    if (email) {
+      isAuthenticated = true
     }
+  }
+
+  // Si no hay sesión activa, redirigir a la página de inicio
+  if (!isAuthenticated) {
+    return navigateTo('/')
+  }
 }) 

@@ -185,13 +185,14 @@
     <div class="bg-gradient-to-r from-primary-600 to-blue-600 rounded-xl p-8 text-center text-white">
       <h2 class="text-2xl font-bold mb-4">¿Listo para dejar de justificar y empezar a ejecutar en serio?</h2>
       <p class="text-lg mb-6 opacity-90">Agenda tu <span class="font-bold">Llamada de Desbloqueo 1-1 con el equipo de Memo</span> y recibe ayuda directa para sistematizar tu ejecución y lograr resultados medibles, no solo intenciones.</p>
-      <a 
-          href="#" 
-          @click.prevent="openBookingPopup" 
-          class="btn-primary bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 inline-flex items-center gap-2"
-      >
-          Agendar Llamada 1-1
-      </a>
+      <iframe
+        src="https://api.leadconnectorhq.com/widget/bookings/llamada-de-aceleracion"
+        width="100%"
+        height="600"
+        frameborder="0"
+        allowfullscreen
+        class="rounded-b-lg mt-6"
+      ></iframe>
     </div>
   </div>
 </template>
@@ -201,7 +202,6 @@ import { ref, onMounted } from 'vue'
 import {
   LightBulbIcon, ListBulletIcon, ExclamationTriangleIcon, UserIcon, Cog6ToothIcon, FaceSmileIcon, BoltIcon, HomeModernIcon, PlayIcon, CheckCircleIcon, StarIcon, WrenchScrewdriverIcon, CheckIcon, CalendarDaysIcon, PencilIcon
 } from '@heroicons/vue/24/outline'
-import { useBookingModal } from '~/composables/useBookingModal'
 
 const REFLECTION_KEY = 'unlockExecutionReflection'
 const reflection = ref('')

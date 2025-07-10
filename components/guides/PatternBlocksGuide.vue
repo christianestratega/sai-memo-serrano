@@ -174,13 +174,14 @@
       <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-8 text-center text-white">
         <h2 class="text-3xl font-bold mb-4">¿Listo para romper tu patrón y acelerar tu negocio?</h2>
         <p class="text-xl mb-6 opacity-90">Agenda tu Llamada de Desbloqueo 1-1 con el equipo de Memo. Personaliza tu plan y ejecuta sin excusas.</p>
-        <a 
-            href="#" 
-            @click.prevent="openBookingPopup" 
-            class="btn-primary bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 inline-flex items-center gap-2"
-        >
-            Agendar Llamada 1-1
-        </a>
+        <iframe
+          src="https://api.leadconnectorhq.com/widget/bookings/llamada-de-aceleracion"
+          width="100%"
+          height="600"
+          frameborder="0"
+          allowfullscreen
+          class="rounded-b-lg mt-6"
+        ></iframe>
       </div>
     </div>
     <div v-else class="flex flex-col items-center justify-center space-y-6 py-8">
@@ -198,8 +199,6 @@ import {
   CheckCircleIcon, PlayIcon, StarIcon, CalendarIcon
 } from '@heroicons/vue/24/outline'
 import BarChart from './PatternStatsBarChart.vue'
-import { useBookingModal } from '~/composables/useBookingModal'
-const { open: openBookingPopup } = useBookingModal()
 
 const props = defineProps<{ user?: { name?: string, mainActivity?: string } }>()
 
